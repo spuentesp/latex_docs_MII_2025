@@ -1,12 +1,15 @@
 \documentclass{article}
-\usepackage{graphicx}
+\usepackage{graphicx} % Required for inserting images
 \usepackage{amsmath}
 \usepackage{url}
 \usepackage{amssymb}
 
-\title{ZKP y SMPC}
-\author{Sebastian Puentes}
-\date{Magíster en Ingeniería Informatica \\ Universidad de La Frontera \\ Curso: Criptografía Aplicada \\ Mayo 2025}
+\title{ZKP y SMPC: Conceptos basicos y funcionamiento \\
+Informe para el Magíster en Ingeniería Informática 2005 \\
+Universidad de La Frontera}
+\author{Sebastian Puentes \\
+Profesor Julio Fenner}
+\date{Mayo 2025}
 
 \begin{document}
 \sloppy
@@ -16,7 +19,7 @@
 
 La Computación Segura Multiparte (SMPC) y las Pruebas de Conocimiento Cero (ZKP) son herramientas criptográficas diseñadas para resolver problemas de colaboración y verificación sin revelar información subyacente.
 
-SMPC permite que varias partes colaboren para calcular una función conjunta sobre sus datos privados, garantizando que ninguna de ellas acceda a los datos individuales de las otras. Por ejemplo, organizaciones que desean calcular estadísticas agregadas sin compartir sus bases de datos.
+SMPC permite que varias partes colaboren para calcular una función conjunta sobre sus datos privados, garantizando que ninguna de ellas acceda a los datos individuales de las otras~\cite{evans2018}. Por ejemplo, organizaciones que desean calcular estadísticas agregadas sin compartir sus bases de datos.
 
 ZKP permite que una parte (probador) demuestre a otra (verificador) que posee cierta información (como una contraseña, una solución matemática o una firma válida) sin revelar el contenido de esa información. Esto es útil en sistemas de autenticación, pruebas de validez y protocolos de privacidad.
 
@@ -47,6 +50,8 @@ Formalmente, un protocolo SMPC debe garantizar:
     \item \textbf{Independencia de entradas}: los participantes no pueden influir en sus propias entradas basándose en las entradas de los demás.
 \end{itemize}
 
+Estas definiciones siguen los lineamientos de Evans et al.~\cite{evans2018}.
+
 Ejemplos de aplicaciones incluyen:
 \begin{itemize}
     \item Cálculo de estadísticas agregadas entre organizaciones competidoras.
@@ -59,7 +64,7 @@ Los protocolos SMPC utilizan técnicas como:
     \item \textbf{Secret sharing}: dividir datos en fragmentos distribuidos.
     \item \textbf{Garbled circuits}: representaciones cifradas de circuitos lógicos.
     \item \textbf{Oblivious transfer}: transferencia de información parcial entre partes.
-\end{itemize}
+\end{itemize} ~\cite{evans2018}.
 
 \subsection{Shamir’s Secret Sharing (SSS)}
 
@@ -76,14 +81,14 @@ f(0) = s, \quad f(i) = \text{share}_i
 y usando interpolación de Lagrange para reconstruir el secreto a partir de al menos \( k \) puntos.
 \subsection{Pruebas de Conocimiento Cero (ZKP)}
 
-Una Prueba de Conocimiento Cero (ZKP, por sus siglas en inglés) es un protocolo criptográfico que permite a un probador demostrar a un verificador que posee cierto conocimiento (por ejemplo, una contraseña, una clave privada o una solución matemática) sin revelar ninguna información adicional más allá del hecho de que conoce dicha información.
+Una Prueba de Conocimiento Cero (ZKP, por sus siglas en inglés) es un protocolo criptográfico que permite a un probador demostrar a un verificador que posee cierto conocimiento (por ejemplo, una contraseña, una clave privada o una solución matemática) sin revelar ninguna información adicional más allá del hecho de que conoce dicha información~\cite{goldreich2001}.
 
 Formalmente, una ZKP debe cumplir:
 \begin{itemize}
     \item \textbf{Completitud}: si el probador es honesto, el verificador acepta.
     \item \textbf{Solidez}: si el probador intenta engañar, el verificador lo detecta con alta probabilidad.
     \item \textbf{Conocimiento cero}: el verificador no aprende nada más que la validez del hecho.
-\end{itemize}
+\end{itemize}~\cite{goldreich2001}.
 
 \subsubsection{Tipos de ZKP: Interactivas vs. No Interactivas}
 
@@ -116,7 +121,7 @@ El protocolo interactivo sería:
 
 \paragraph{No Interactivas (NIZK)}
 
-Elimina la necesidad de intercambio entre las partes. El probador genera localmente el desafío usando una función hash determinística:
+No Interactivas (NIZK). Elimina la necesidad de intercambio entre las partes. El probador genera localmente el desafío usando una función hash determinística: c = H(a)~\cite{fiat1986}:
 \[
 c = H(a)
 \]
@@ -126,7 +131,7 @@ donde \( H \) es una función hash criptográfica, actuando como oráculo aleato
 \]
 y el verificador solo necesita recalcular \( c = H(a) \) y verificar la igualdad como en el protocolo interactivo.
 
-\textbf{Ejemplo: Transformación de Fiat-Shamir}
+\textbf{Ejemplo: Transformación de Fiat-Shamir~\cite{fiat1986}.}
 
 Se transforma el protocolo interactivo de Schnorr en no interactivo sustituyendo el desafío \( c \) por:
 \[
@@ -139,6 +144,7 @@ Esto permite crear pruebas que se pueden enviar y verificar una sola vez, sin ro
 
 \begin{table}[h]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{|l|c|c|}
 \hline
 \textbf{Característica} & \textbf{Interactiva} & \textbf{No Interactiva (NIZK)} \\
@@ -153,14 +159,16 @@ Ejemplos & Schnorr, Sigma protocols & Fiat-Shamir, zk-SNARKs \\
 \hline
 Uso típico & Autenticación en línea, firmas interactivas & Blockchain, pruebas públicas, sistemas distribuidos \\
 \hline
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
+
 
 \subsubsection{Aplicaciones generales}
 
 \begin{itemize}
     \item Autenticación sin compartir contraseñas.
-    \item Validación de transacciones privadas en blockchain.
+    \item Validación de transacciones privadas en blockchain. las ZKP permiten transacciones privadas~\cite{chainalysis2024}.
     \item Pruebas públicas de validez sin revelar datos internos.
 \end{itemize}
 
@@ -326,7 +334,7 @@ y = x^2 \mod 7 = 4
 
 \subsection{zk-SNARKs: Pruebas no interactivas avanzadas}
 
-Un zk-SNARK (\textit{Zero-Knowledge Succinct Non-Interactive Argument of Knowledge}) es un protocolo criptográfico que permite generar pruebas extremadamente compactas y rápidas de verificar, demostrando que existe una solución a un problema (generalmente representado como un circuito aritmético), sin revelar dicha solución ni requerir múltiples rondas de interacción.
+Un zk-SNARK (\textit{Zero-Knowledge Succinct Non-Interactive Argument of Knowledge}) es un protocolo criptográfico que permite generar pruebas extremadamente compactas y rápidas de verificar, demostrando que existe una solución a un problema, sin revelar dicha solución ni requerir múltiples rondas de interacción~\cite{ben2014}.
 
 Sus propiedades clave son:
 \begin{itemize}
@@ -397,7 +405,7 @@ Esto asegura que el probador conoce \( a, b \) válidos, sin revelar sus valores
 \subsubsection{Limitaciones y consideraciones}
 
 \begin{itemize}
-    \item Los zk-SNARKs requieren una \textbf{ceremonia de setup confiable} para generar el CRS. Si el setup está comprometido, un atacante podría generar pruebas falsas.
+    \item Los zk-SNARKs requieren una \textbf{ceremonia de setup confiable} para generar el CRS ~\cite{ben2014}.. Si el setup está comprometido, un atacante podría generar pruebas falsas.
     \item Los sistemas avanzados como zk-STARKs eliminan la necesidad del setup confiable, a costa de pruebas más grandes.
     \item Los zk-SNARKs son ampliamente usados en blockchain (por ejemplo, Zcash) para validar transacciones privadas.
 \end{itemize}
@@ -594,7 +602,7 @@ Si A envía un share falso, no podrá generar el MAC correcto y será detectado.
 
 ---
 
-\subsection{Ataques en multiplicación: Beaver triples)}
+\subsection{Ataques en multiplicación: Triple Beaver}
 
 \textbf{Escenario:} Queremos calcular:
 \[
@@ -760,10 +768,10 @@ Los protocolos SMPC permiten construir aplicaciones colaborativas seguras, desde
 
 Además, abordamos las limitaciones prácticas, los modelos de amenazas y los mecanismos de defensa, mostrando que la seguridad efectiva requiere no solo algoritmos sólidos, sino también una implementación cuidadosa y consciente del modelo adversarial.
 
-Finalmente, destacamos que existen frameworks maduros y disponibles (como SPDZ, Sharemind y MPyC) que permiten llevar estas técnicas al mundo real, abriendo la puerta a sistemas distribuidos seguros, verificables y eficientes.
+Finalmente, destacamos que existen frameworks maduros y disponibles como Sharemind~\cite{bogdanov2008} implementan estos principios de forma práctica. que permiten llevar estas técnicas al mundo real, abriendo la puerta a sistemas distribuidos seguros, verificables y eficientes.
 
 \textbf{Perspectiva futura:} 
-El desarrollo de nuevas variantes como zk-STARKs, homomorphic encryption y multiparty computation as a service (MPCaaS) promete expandir aún más las capacidades de privacidad y seguridad, haciendo de estos temas áreas activas y estratégicas para la investigación y la ingeniería aplicada.
+El desarrollo de nuevas variantes como zk-STARKs, homomorphic encryption y multiparty computation as a service (MPCaaS) promete expandir aún más las capacidades de privacidad y seguridad, haciendo de estos temas áreas activas y estratégicas para la investigación y la ingeniería aplicada. El trabajo de CertiK~\cite{certik2023} destaca los avances recientes en pruebas más eficientes.
 
 \section{Referencias}
 
@@ -772,7 +780,22 @@ El desarrollo de nuevas variantes como zk-STARKs, homomorphic encryption y multi
 \bibitem{evans2018}
 D. Evans, V. Kolesnikov, y M. Rosulek, 
 \textit{A Pragmatic Introduction to Secure Multi-Party Computation}, 
-Foundations and Trends in Privacy and Security, vol. 2, núm. 2–3, 2018, pp. 70–246.
+Foundations and Trends in Privacy and Security, vol. 2, núm. 2--3, 2018, pp. 70--246.
+
+\bibitem{goldreich2001}
+O. Goldreich, 
+\textit{Foundations of Cryptography: Volume 1, Basic Tools}, 
+Cambridge University Press, 2001.
+
+\bibitem{fiat1986}
+A. Fiat y A. Shamir, 
+\textit{How to Prove Yourself: Practical Solutions to Identification and Signature Problems}, 
+Advances in Cryptology -- CRYPTO’86, Springer, 1986, pp. 186--194.
+
+\bibitem{ben2014}
+E. Ben-Sasson, A. Chiesa, D. Genkin, E. Tromer y M. Virza, 
+\textit{Succinct Non-Interactive Zero Knowledge for a von Neumann Architecture}, 
+Proceedings of the USENIX Security Symposium, 2014, pp. 781--796.
 
 \bibitem{lindell2017}
 Y. Lindell, 
@@ -798,3 +821,4 @@ CertiK Blog, 2023. Disponible en: \url{https://www.certik.com/resources/blog/a-s
 
 
 \end{document}
+
