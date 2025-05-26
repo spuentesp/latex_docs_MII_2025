@@ -1,0 +1,800 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{amssymb}
+
+\title{ZKP y SMPC}
+\author{Sebastian Puentes}
+\date{Magíster en Ingeniería Informatica \\ Universidad de La Frontera \\ Curso: Criptografía Aplicada \\ Mayo 2025}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\section{Introducción}
+
+La Computación Segura Multiparte (SMPC) y las Pruebas de Conocimiento Cero (ZKP) son herramientas criptográficas diseñadas para resolver problemas de colaboración y verificación sin revelar información subyacente.
+
+SMPC permite que varias partes colaboren para calcular una función conjunta sobre sus datos privados, garantizando que ninguna de ellas acceda a los datos individuales de las otras. Por ejemplo, organizaciones que desean calcular estadísticas agregadas sin compartir sus bases de datos.
+
+ZKP permite que una parte (probador) demuestre a otra (verificador) que posee cierta información (como una contraseña, una solución matemática o una firma válida) sin revelar el contenido de esa información. Esto es útil en sistemas de autenticación, pruebas de validez y protocolos de privacidad.
+
+Ambas técnicas tienen aplicaciones en áreas como:
+\begin{itemize}
+    \item Votación electrónica.
+    \item Identidad digital y verificación de atributos.
+    \item Finanzas (pruebas de solvencia sin revelar balances).
+    \item Sistemas distribuidos y blockchain.
+\end{itemize}
+
+Este documento presenta una explicación detallada y paso a paso de SMPC y ZKP, incluyendo ejemplos numéricos concretos. Se explicarán los conceptos matemáticos requeridos y se demostrará cómo funcionan estos sistemas en la práctica, con el objetivo de servir como referencia técnica para ingenieros informáticos y matemáticos que no estén familiarizados con criptografía.
+
+\section{Definiciones}
+
+\subsection{Computación Segura Multiparte (SMPC)}
+
+La Computación Segura Multiparte (SMPC, por sus siglas en inglés) es una rama de la criptografía que permite a un conjunto de participantes \( P_1, P_2, \ldots, P_n \), cada uno con una entrada privada \( x_i \), colaborar para calcular una función conjunta:
+\[
+f(x_1, x_2, \ldots, x_n)
+\]
+de modo que ninguna de las partes aprenda más información sobre las entradas de las demás que la que pueda inferirse del resultado final.
+
+Formalmente, un protocolo SMPC debe garantizar:
+\begin{itemize}
+    \item \textbf{Privacidad}: ningún participante aprende información adicional sobre las entradas ajenas.
+    \item \textbf{Corrección}: el resultado calculado es correcto, incluso si algunos participantes son deshonestos (dependiendo del modelo de amenazas).
+    \item \textbf{Independencia de entradas}: los participantes no pueden influir en sus propias entradas basándose en las entradas de los demás.
+\end{itemize}
+
+Ejemplos de aplicaciones incluyen:
+\begin{itemize}
+    \item Cálculo de estadísticas agregadas entre organizaciones competidoras.
+    \item Entrenamiento de modelos de aprendizaje automático sobre datos distribuidos.
+    \item Análisis de riesgo conjunto entre bancos.
+\end{itemize}
+
+Los protocolos SMPC utilizan técnicas como:
+\begin{itemize}
+    \item \textbf{Secret sharing}: dividir datos en fragmentos distribuidos.
+    \item \textbf{Garbled circuits}: representaciones cifradas de circuitos lógicos.
+    \item \textbf{Oblivious transfer}: transferencia de información parcial entre partes.
+\end{itemize}
+
+\subsection{Shamir’s Secret Sharing (SSS)}
+
+Shamir’s Secret Sharing es una técnica específica de secret sharing utilizada frecuentemente dentro de protocolos SMPC. Su objetivo es dividir un secreto \( s \) en \( n \) partes (shares) tales que:
+\begin{itemize}
+    \item Cualquier subconjunto de al menos \( k \) partes puede reconstruir \( s \).
+    \item Ningún subconjunto con menos de \( k \) partes obtiene información sobre \( s \).
+\end{itemize}
+
+Matemáticamente, el esquema funciona construyendo un polinomio \( f(x) \) de grado \( k-1 \) sobre un campo finito \( \mathbb{F}_p \), donde:
+\[
+f(0) = s, \quad f(i) = \text{share}_i
+\]
+y usando interpolación de Lagrange para reconstruir el secreto a partir de al menos \( k \) puntos.
+\subsection{Pruebas de Conocimiento Cero (ZKP)}
+
+Una Prueba de Conocimiento Cero (ZKP, por sus siglas en inglés) es un protocolo criptográfico que permite a un probador demostrar a un verificador que posee cierto conocimiento (por ejemplo, una contraseña, una clave privada o una solución matemática) sin revelar ninguna información adicional más allá del hecho de que conoce dicha información.
+
+Formalmente, una ZKP debe cumplir:
+\begin{itemize}
+    \item \textbf{Completitud}: si el probador es honesto, el verificador acepta.
+    \item \textbf{Solidez}: si el probador intenta engañar, el verificador lo detecta con alta probabilidad.
+    \item \textbf{Conocimiento cero}: el verificador no aprende nada más que la validez del hecho.
+\end{itemize}
+
+\subsubsection{Tipos de ZKP: Interactivas vs. No Interactivas}
+
+Las ZKP se dividen principalmente en dos categorías:
+
+\paragraph{Interactivas}
+
+Requieren una secuencia de mensajes entre el probador y el verificador. El protocolo generalmente sigue estos pasos:
+\begin{enumerate}
+    \item El probador envía un compromiso inicial.
+    \item El verificador envía un desafío aleatorio.
+    \item El probador responde al desafío.
+    \item El verificador verifica que la respuesta sea consistente con el compromiso y el desafío.
+\end{enumerate}
+
+\textbf{Ejemplo: Protocolo de Schnorr}
+
+Supongamos un grupo \( G \) con generador \( g \) y primo \( p \). El probador quiere demostrar que conoce \( x \) tal que:
+\[
+y = g^x \mod p
+\]
+
+El protocolo interactivo sería:
+\begin{itemize}
+    \item Prover elige \( r \), calcula \( a = g^r \mod p \), envía \( a \).
+    \item Verificador elige desafío aleatorio \( c \).
+    \item Prover responde \( z = r + c \cdot x \mod q \).
+    \item Verificador verifica \( g^z \stackrel{?}{=} a \cdot y^c \mod p \).
+\end{itemize}
+
+\paragraph{No Interactivas (NIZK)}
+
+Elimina la necesidad de intercambio entre las partes. El probador genera localmente el desafío usando una función hash determinística:
+\[
+c = H(a)
+\]
+donde \( H \) es una función hash criptográfica, actuando como oráculo aleatorio. Así, el probador puede enviar directamente:
+\[
+(a, z)
+\]
+y el verificador solo necesita recalcular \( c = H(a) \) y verificar la igualdad como en el protocolo interactivo.
+
+\textbf{Ejemplo: Transformación de Fiat-Shamir}
+
+Se transforma el protocolo interactivo de Schnorr en no interactivo sustituyendo el desafío \( c \) por:
+\[
+c = H(a)
+\]
+
+Esto permite crear pruebas que se pueden enviar y verificar una sola vez, sin rondas adicionales.
+
+\subsubsection{Comparación de tipos}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Característica} & \textbf{Interactiva} & \textbf{No Interactiva (NIZK)} \\
+\hline
+Número de mensajes & Múltiples & Único mensaje \\
+\hline
+Requiere verificador activo & Sí & No \\
+\hline
+Modelo de seguridad & Aleatoriedad explícita & Hash u oráculo aleatorio \\
+\hline
+Ejemplos & Schnorr, Sigma protocols & Fiat-Shamir, zk-SNARKs \\
+\hline
+Uso típico & Autenticación en línea, firmas interactivas & Blockchain, pruebas públicas, sistemas distribuidos \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Aplicaciones generales}
+
+\begin{itemize}
+    \item Autenticación sin compartir contraseñas.
+    \item Validación de transacciones privadas en blockchain.
+    \item Pruebas públicas de validez sin revelar datos internos.
+\end{itemize}
+
+
+\section{Shamir’s Secret Sharing: Funcionamiento paso a paso}
+
+Shamir’s Secret Sharing (SSS) es un método matemático para dividir un secreto \( s \) en \( n \) partes (o shares), de forma que cualquier subconjunto de al menos \( k \) partes pueda reconstruir \( s \), mientras que cualquier subconjunto con menos de \( k \) partes no obtenga información sobre el secreto.
+
+\subsection{Conceptos matemáticos previos}
+
+\subsubsection{Campo finito \( \mathbb{F}_p \)}
+Un campo finito es un conjunto de números que permite realizar operaciones de suma, resta, multiplicación y división (excepto por cero) bajo una aritmética modular. En este contexto, se usa un número primo \( p \) y se trabaja módulo \( p \), asegurando que todas las operaciones sean seguras y cerradas.
+
+Por ejemplo, si \( p = 7 \), entonces:
+\[
+3 + 5 = 1 \; (\text{porque } 8 \mod 7 = 1), \quad 4 \cdot 6 = 3 \; (\text{porque } 24 \mod 7 = 3)
+\]
+
+\subsubsection{Polinomios sobre campos finitos}
+El secreto \( s \) se codifica como el término independiente \( f(0) \) de un polinomio aleatorio \( f(x) \) de grado \( k-1 \) sobre \( \mathbb{F}_p \):
+\[
+f(x) = s + a_1 x + a_2 x^2 + \cdots + a_{k-1} x^{k-1}
+\]
+donde los coeficientes \( a_i \) se eligen al azar.
+
+\subsubsection{Interpolación de Lagrange}
+La interpolación de Lagrange permite reconstruir el polinomio original \( f(x) \) a partir de \( k \) puntos conocidos \( (x_j, f(x_j)) \). Se usa la siguiente fórmula:
+\[
+f(0) = \sum_{j=1}^{k} f(x_j) \cdot \ell_j(0)
+\]
+donde cada coeficiente de Lagrange es:
+\[
+\ell_j(0) = \prod_{\substack{m=1 \\ m \neq j}}^{k} \frac{0 - x_m}{x_j - x_m}
+\]
+
+\subsection{Ejemplo numérico completo}
+
+Supongamos que queremos compartir el secreto \( s = 123 \) entre \( n = 3 \) partes, con un umbral \( k = 2 \).
+
+\textbf{Paso 1: Elegir un campo finito}
+
+Seleccionamos un número primo \( p \) mayor que \( s \); elegimos \( p = 257 \).
+
+\textbf{Paso 2: Construir el polinomio}
+
+Como \( k = 2 \), el polinomio será de grado 1:
+\[
+f(x) = 123 + 45x \mod 257
+\]
+donde \( 45 \) es un número aleatorio elegido por el generador del secreto.
+
+\textbf{Paso 3: Generar los shares}
+
+Calculamos \( f(x) \) en diferentes puntos:
+\[
+f(1) = 123 + 45 \cdot 1 = 168 \mod 257
+\]
+\[
+f(2) = 123 + 45 \cdot 2 = 213 \mod 257
+\]
+\[
+f(3) = 123 + 45 \cdot 3 = 258 \equiv 1 \mod 257
+\]
+
+Cada participante recibe su par \( (x_j, f(x_j)) \).
+
+\textbf{Paso 4: Reconstrucción del secreto}
+
+Supongamos que se reúnen las partes A y B (\( x_1 = 1, f(1) = 168 \)) y (\( x_2 = 2, f(2) = 213 \)).
+
+Calculamos los coeficientes de Lagrange:
+\[
+\ell_1(0) = \frac{0 - 2}{1 - 2} = \frac{-2}{-1} = 2 \mod 257
+\]
+\[
+\ell_2(0) = \frac{0 - 1}{2 - 1} = \frac{-1}{1} = -1 \equiv 256 \mod 257
+\]
+
+\textbf{Paso 5: Calcular el secreto}
+\[
+f(0) = 168 \cdot 2 + 213 \cdot 256 \mod 257
+\]
+\[
+168 \cdot 2 = 336 \equiv 79 \mod 257
+\]
+\[
+213 \cdot 256 = 213 \cdot (-1) = -213 \equiv 44 \mod 257
+\]
+\[
+79 + 44 = 123 \mod 257
+\]
+
+\textbf{Resultado:}
+El secreto \( s = 123 \) se ha recuperado correctamente.
+
+\section{Pruebas de Conocimiento Cero (ZKP): Funcionamiento paso a paso}
+
+Las Pruebas de Conocimiento Cero (ZKP) son protocolos criptográficos que permiten a un probador convencer a un verificador de que conoce un valor secreto, sin revelar nada sobre el secreto en sí.
+
+Formalmente, un protocolo ZKP debe cumplir tres propiedades:
+\begin{itemize}
+    \item \textbf{Completitud}: si el probador es honesto y sigue el protocolo, el verificador acepta.
+    \item \textbf{Solidez}: si el probador intenta engañar, el verificador lo detecta con alta probabilidad.
+    \item \textbf{Conocimiento cero}: el verificador no aprende ninguna información adicional sobre el secreto más allá de su existencia.
+\end{itemize}
+
+\subsection{Conceptos matemáticos previos}
+
+\subsubsection{Congruencias módulo \( p \)}
+En aritmética modular, dos números \( a \) y \( b \) son congruentes módulo \( p \) si su diferencia es divisible por \( p \):
+\[
+a \equiv b \; (\text{mod } p)
+\]
+
+\subsubsection{Protocolos de reto-respuesta}
+Las ZKP interactivas suelen implementarse como secuencias de reto-respuesta, donde el verificador desafía al probador y el probador responde de manera consistente con su conocimiento.
+
+\subsection{Ejemplo numérico completo}
+
+Supongamos que el probador conoce un número secreto \( x = 5 \), y quiere convencer al verificador de que \( x^2 \equiv 4 \mod 7 \), sin revelar \( x \).
+
+\textbf{Paso 1: Establecer los parámetros}
+
+El verificador conoce:
+\[
+y = x^2 \mod 7 = 4
+\]
+
+\textbf{Paso 2: Probar el conocimiento (protocolo)}
+
+\begin{enumerate}
+    \item El probador elige un número aleatorio \( r = 3 \).
+    \item Calcula:
+    \[
+    a = r^2 \mod 7 = 3^2 \mod 7 = 9 \mod 7 = 2
+    \]
+    y envía \( a \) al verificador.
+    \item El verificador envía un desafío aleatorio \( c \in \{0, 1\} \). Supongamos \( c = 1 \).
+    \item El probador responde con:
+    \[
+    z = r \cdot x^c \mod 7 = 3 \cdot 5^1 \mod 7 = 15 \mod 7 = 1
+    \]
+    \item El verificador comprueba:
+    \[
+    z^2 \equiv a \cdot y^c \mod 7 \; ?
+    \]
+    Calculamos:
+    \[
+    z^2 = 1^2 = 1, \quad a \cdot y^c = 2 \cdot 4^1 = 8 \mod 7 = 1
+    \]
+    Como ambos valores coinciden, el verificador acepta.
+\end{enumerate}
+
+\textbf{Nota:} El desafío \( c \) puede repetirse varias veces (con diferentes valores aleatorios) para aumentar la probabilidad de detectar un engaño si el probador no conoce realmente \( x \).
+
+\subsection{Aplicaciones comunes}
+
+\begin{itemize}
+    \item Autenticación: demostrar que se conoce una contraseña o clave privada sin exponerla.
+    \item Validación de transacciones: en sistemas blockchain, demostrar que una operación es válida sin revelar su contenido.
+    \item Verificación de atributos: demostrar que se posee un atributo (como mayoría de edad) sin revelar la información completa.
+\end{itemize}
+
+\subsection{zk-SNARKs: Pruebas no interactivas avanzadas}
+
+Un zk-SNARK (\textit{Zero-Knowledge Succinct Non-Interactive Argument of Knowledge}) es un protocolo criptográfico que permite generar pruebas extremadamente compactas y rápidas de verificar, demostrando que existe una solución a un problema (generalmente representado como un circuito aritmético), sin revelar dicha solución ni requerir múltiples rondas de interacción.
+
+Sus propiedades clave son:
+\begin{itemize}
+    \item \textbf{Zero-knowledge}: no revela nada más allá de la validez de la afirmación.
+    \item \textbf{Succinct}: la prueba es pequeña y rápida de verificar.
+    \item \textbf{Non-interactive}: solo requiere enviar un mensaje al verificador.
+    \item \textbf{Argument of knowledge}: garantiza que el probador conoce un testigo (una solución válida).
+\end{itemize}
+
+\subsubsection{Fundamento matemático}
+
+El flujo general de un zk-SNARK es:
+\begin{enumerate}
+    \item Transformar el problema en un circuito aritmético \( C \) que verifica una relación \( f(x, w) = 0 \), donde:
+        \begin{itemize}
+            \item \( x \): entrada pública.
+            \item \( w \): testigo privado (la solución que queremos probar).
+        \end{itemize}
+    \item Reescribir el circuito como un conjunto de restricciones algebraicas conocido como \textit{Quadratic Arithmetic Program} (QAP).
+    \item Generar compromisos criptográficos homomórficos (usando curvas elípticas) sobre los polinomios asociados al QAP.
+    \item Generar una prueba única que puede ser verificada rápidamente, usando un \textbf{Common Reference String} (CRS) generado previamente.
+\end{enumerate}
+
+\subsubsection{Ejemplo numérico simplificado}
+
+Supongamos que queremos demostrar que conocemos \( a, b \) tales que:
+\[
+a \cdot b = 6
+\]
+
+\textbf{Paso 1: Definir el circuito}
+
+La relación a demostrar es:
+\[
+C(a, b) = a \cdot b - 6 = 0
+\]
+
+\textbf{Paso 2: Representar como QAP}
+
+Simplificadamente, el QAP define polinomios \( A(x), B(x), C(x) \) tales que:
+\[
+A(s) \cdot B(s) - C(s) = 0
+\]
+para un valor oculto \( s \), conocido solo en el CRS.
+
+Por ejemplo, si \( a = 2, b = 3 \), tenemos:
+\[
+A(s) = 2, \quad B(s) = 3, \quad C(s) = 6
+\]
+
+\textbf{Paso 3: Compromisos}
+
+En lugar de enviar \( A(s), B(s), C(s) \) directamente, el probador envía:
+\[
+E(A(s)), \; E(B(s)), \; E(C(s))
+\]
+donde \( E(\cdot) \) es un compromiso criptográfico (como \( g^{A(s)} \) en una curva elíptica).
+
+\textbf{Paso 4: Verificación}
+
+El verificador comprueba:
+\[
+E(A(s)) \cdot E(B(s)) \stackrel{?}{=} E(C(s))
+\]
+
+Esto asegura que el probador conoce \( a, b \) válidos, sin revelar sus valores exactos.
+
+\subsubsection{Limitaciones y consideraciones}
+
+\begin{itemize}
+    \item Los zk-SNARKs requieren una \textbf{ceremonia de setup confiable} para generar el CRS. Si el setup está comprometido, un atacante podría generar pruebas falsas.
+    \item Los sistemas avanzados como zk-STARKs eliminan la necesidad del setup confiable, a costa de pruebas más grandes.
+    \item Los zk-SNARKs son ampliamente usados en blockchain (por ejemplo, Zcash) para validar transacciones privadas.
+\end{itemize}
+
+
+\section{Ejemplo combinado: SMPC + ZKP}
+
+Combinar Computación Segura Multiparte (SMPC) con Pruebas de Conocimiento Cero (ZKP) permite construir sistemas donde no solo se calculan resultados de forma distribuida y privada, sino que además cada participante puede demostrar que su entrada es válida, sin revelar detalles adicionales.
+
+Este enfoque es esencial en aplicaciones como:
+\begin{itemize}
+    \item Votación electrónica privada.
+    \item Cálculo financiero distribuido entre bancos.
+    \item Agregación de datos estadísticos confidenciales.
+\end{itemize}
+
+A continuación se presenta un ejemplo matemático simplificado, combinando los pasos previos.
+
+\subsection{Escenario}
+
+Tres participantes (A, B y C) desean calcular de manera segura el promedio de sus entradas privadas \( x_1, x_2, x_3 \), usando SMPC. Sin embargo, antes de aportar sus entradas, deben demostrar mediante ZKP que cada número \( x_i \) pertenece al rango permitido (por ejemplo, un número positivo menor que un umbral), sin revelar su valor.
+
+Usaremos:
+\begin{itemize}
+    \item Shamir’s Secret Sharing con umbral \( k = 2 \) y \( p = 257 \).
+    \item Un protocolo ZKP simplificado para demostrar que cada \( x_i \) cumple \( x_i^2 \equiv y_i \mod 7 \).
+\end{itemize}
+
+\subsection{Paso 1: Compartir las entradas (SMPC)}
+
+Cada participante genera un polinomio de grado 1:
+\[
+f_i(x) = x_i + a_i x \mod 257
+\]
+donde \( a_i \) es elegido aleatoriamente, y calcula:
+\[
+\text{share}_{ij} = f_i(j)
+\]
+para cada participante \( j \).
+
+Por ejemplo, si A tiene \( x_1 = 123 \) y elige \( a_1 = 45 \):
+\[
+f_1(1) = 123 + 45 \cdot 1 = 168 \mod 257
+\]
+\[
+f_1(2) = 123 + 90 = 213 \mod 257
+\]
+\[
+f_1(3) = 123 + 135 = 258 \equiv 1 \mod 257
+\]
+
+Cada participante distribuye sus shares a los otros, sin revelar su \( x_i \).
+
+\subsection{Paso 2: Verificación local (ZKP)}
+
+Antes de aceptar los shares, cada participante presenta una ZKP para demostrar que su entrada \( x_i \) cumple cierta propiedad.
+
+Por ejemplo, A demuestra que conoce \( x_1 \) tal que:
+\[
+x_1^2 \equiv y_1 \mod 7
+\]
+con \( y_1 = 4 \), usando el mismo protocolo de reto-respuesta explicado antes:
+\begin{enumerate}
+    \item Elige \( r = 3 \), calcula \( a = r^2 \mod 7 = 2 \), envía \( a \).
+    \item Recibe desafío \( c = 1 \).
+    \item Responde \( z = r \cdot x_1^c \mod 7 = 3 \cdot 5 \mod 7 = 1 \).
+    \item El verificador comprueba:
+    \[
+    z^2 \equiv a \cdot y_1^c \mod 7 \; ?
+    \]
+    \[
+    1^2 = 1, \quad 2 \cdot 4 = 8 \mod 7 = 1
+    \]
+    Resultado válido.
+\end{enumerate}
+
+Este paso garantiza que nadie inyecte entradas inválidas sin romper la privacidad.
+
+\subsection{Paso 3: Cálculo distribuido (SMPC)}
+
+Una vez distribuidos y validados los shares, cada participante puede realizar las operaciones localmente sobre los shares, siguiendo el protocolo SMPC, para obtener el promedio:
+\[
+\text{promedio} = \frac{x_1 + x_2 + x_3}{3}
+\]
+
+Por ejemplo, si A y B se combinan, reconstruyen:
+\[
+s = f_1(0) = 168 \cdot 2 + 213 \cdot 256 \mod 257 = 123
+\]
+y hacen lo mismo para \( x_2 \) y \( x_3 \), sin haber conocido sus valores durante la fase de cálculo.
+
+\subsection{Resultado final}
+
+El sistema obtiene el resultado final (promedio) de manera distribuida, privada y verificable, con dos garantías:
+\begin{itemize}
+    \item Ningún participante conoció las entradas privadas de los demás.
+    \item Todas las entradas fueron previamente demostradas como válidas mediante ZKP.
+\end{itemize}
+
+\section{Modelos de amenazas y ataques}
+
+\subsection{Modelos de adversario}
+
+Los sistemas SMPC y ZKP enfrentan diferentes tipos de amenazas, según el comportamiento del adversario:
+\begin{itemize}
+    \item \textbf{Adversario semi-honesto (pasivo)}: sigue el protocolo correctamente, pero intenta deducir información privada a partir de los datos que observa.
+    \item \textbf{Adversario malicioso (activo)}: puede enviar mensajes falsos, alterar datos o desviarse del protocolo para corromper el resultado o romper la privacidad.
+\end{itemize}
+
+A continuación, exploraremos cada tipo con ejemplos numéricos detallados.
+
+\subsection{Ataques semi-honestos: filtración estadística}
+
+\textbf{Escenario:} Tres hospitales (A, B, C) usan SMPC para calcular el promedio de edad de pacientes:
+\[
+\text{promedio} = \frac{x_A + x_B + x_C}{3}
+\]
+
+Supongamos:
+\[
+x_A = 50, \quad x_B = 40, \quad x_C = 30
+\]
+
+Cada hospital distribuye shares usando Shamir con \( p = 101 \), \( k = 2 \).
+
+Hospital A genera:
+\[
+f_A(x) = 50 + 20x \mod 101
+\]
+y distribuye:
+\[
+f_A(1) = 50 + 20 = 70, \quad f_A(2) = 50 + 40 = 90, \quad f_A(3) = 50 + 60 = 110 \equiv 9 \mod 101
+\]
+
+Hospital B genera:
+\[
+f_B(x) = 40 + 10x \mod 101
+\]
+y distribuye:
+\[
+f_B(1) = 50, \; f_B(2) = 60, \; f_B(3) = 70
+\]
+
+Hospital C genera:
+\[
+f_C(x) = 30 + 15x \mod 101
+\]
+y distribuye:
+\[
+f_C(1) = 45, \; f_C(2) = 60, \; f_C(3) = 75
+\]
+
+\textbf{Ataque:} Si el hospital B guarda todas las ejecuciones de múltiples rondas (con los mismos inputs), puede acumular suficientes ecuaciones lineales para resolver por \( x_A, x_C \) usando álgebra lineal.
+
+\textbf{Prevención:}  
+- Limitar repeticiones.  
+- Regenerar polinomios aleatorios cada ronda.  
+- Agregar ruido (differential privacy).
+
+---
+
+\subsection{Ataques maliciosos: manipulación de shares}
+
+\textbf{Escenario:} Dos licitadores, A y B, participan en una subasta SMPC. Cada uno envía su oferta como share secreto.
+
+Supongamos:
+\[
+\text{oferta}_A = 100, \quad \text{oferta}_B = 200
+\]
+
+El protocolo reconstruye el máximo usando:
+\[
+\max(100, 200) = 200
+\]
+
+\textbf{Ataque malicioso:} El licitador A falsifica sus shares:
+\[
+[A]_1 = 100, \; [A]_2 = 500
+\]
+Al reconstruir, se obtiene:
+\[
+A_{\text{reconstruido}} = 100 + 500 \equiv 600
+\]
+lo que le permite ganar ilegalmente.
+
+\textbf{Prevención:}  
+- Usar MACs (\textit{Message Authentication Codes}) en cada share, por ejemplo:
+\[
+\gamma([A]_i) = \alpha \cdot [A]_i + \delta_i
+\]
+donde \( \alpha \) es una clave global desconocida.
+
+Si A envía un share falso, no podrá generar el MAC correcto y será detectado.
+
+---
+
+\subsection{Ataques en multiplicación: Beaver triples)}
+
+\textbf{Escenario:} Queremos calcular:
+\[
+z = x \cdot y
+\]
+usando un triple precomputado:
+\[
+[u], [v], [w] \; \text{con} \; w = u \cdot v
+\]
+
+Supongamos:
+\[
+[u] = 2, \; [v] = 3, \; [w] = 6
+\]
+y los participantes envían:
+\[
+\epsilon = x - u, \; \rho = y - v
+\]
+
+El resultado final se calcula como:
+\[
+z = \epsilon \cdot \rho + \epsilon [v] + \rho [u] + [w]
+\]
+
+\textbf{Ataque malicioso:} Un participante cambia \( [w] \) a 7, rompiendo la relación \( w = u \cdot v \). El producto calculado ya no es correcto.
+
+\textbf{Prevención:}  
+- Incluir ZKP que demuestre:
+\[
+[w]_i = [u]_i \cdot [v]_i
+\]
+antes de usar el triple.
+
+- Ejecutar el \textit{sacrifice protocol}, verificando aleatoriamente múltiples triples para detectar inconsistencias.
+
+---
+
+\subsection{Resumen}
+
+\begin{itemize}
+    \item \textbf{Ataques pasivos:} infieren datos recolectando múltiples ejecuciones.
+    \item \textbf{Ataques activos:} manipulan shares, envían datos falsos, alteran precomputaciones.
+\end{itemize}
+
+Las defensas requieren agregar autenticación, pruebas criptográficas (como ZKP) y asumir modelos de amenaza conservadores (\( t < n/2 \) partes corruptas).
+
+\subsection{Mecanismos de defensa}
+
+Para proteger los protocolos SMPC y ZKP frente a adversarios semi-honestos y maliciosos, se aplican varias técnicas criptográficas. A continuación detallamos los principales mecanismos, con ejemplos concretos.
+
+\subsubsection{Códigos de Autenticación de Mensajes (MACs)}
+
+Cada share distribuido incluye un valor extra (MAC) que permite verificar su integridad. El esquema básico usa una clave global secreta \( \alpha \), desconocida para los participantes.
+
+\textbf{Ejemplo:}
+
+Supongamos que el share de A es:
+\[
+[A]_i = 50
+\]
+El sistema calcula el MAC:
+\[
+\gamma([A]_i) = \alpha \cdot [A]_i + \delta_i
+\]
+donde \( \delta_i \) es un desplazamiento aleatorio.
+
+Si \( \alpha = 7 \) y \( \delta_i = 3 \):
+\[
+\gamma([A]_i) = 7 \cdot 50 + 3 = 353
+\]
+
+\textbf{Chequeo:}  
+Si un participante altera \( [A]_i \) a 60, debe generar:
+\[
+\gamma([A]_i') = 7 \cdot 60 + 3 = 423
+\]
+pero sin conocer \( \alpha \), no puede falsificar el MAC correcto.
+
+---
+
+\subsubsection{Pruebas de consistencia (ZKP locales)}
+
+Antes de usar valores compartidos, los participantes ejecutan pruebas de conocimiento cero para demostrar que:
+\begin{itemize}
+    \item Sus shares son consistentes.
+    \item Los triples precomputados son válidos (\( w = u \cdot v \)).
+    \item Las entradas cumplen restricciones (por ejemplo, rango permitido).
+\end{itemize}
+
+\textbf{Ejemplo numérico:}
+
+Si el triple es:
+\[
+[u] = 2, \; [v] = 3, \; [w] = 6
+\]
+los participantes generan una ZKP para demostrar que conocen \( u, v \) tales que:
+\[
+w = u \cdot v
+\]
+
+Esto puede hacerse usando compromisos homomórficos:
+\[
+E([w]) \stackrel{?}{=} E([u]) \cdot E([v])
+\]
+donde \( E(\cdot) \) es una función de compromiso (como exponentiación en curva elíptica).
+
+---
+
+\subsubsection{Sacrifice Protocol}
+
+Para asegurar la integridad de los triples Beaver, los protocolos ejecutan verificaciones aleatorias sacrificando algunos triples antes del cálculo real.
+
+\textbf{Ejemplo:}
+
+Supongamos que tenemos 10 triples:
+\[
+([u_1], [v_1], [w_1]), \ldots, ([u_{10}], [v_{10}], [w_{10}])
+\]
+
+El protocolo selecciona aleatoriamente 5 para verificación:
+\[
+[w_j] \stackrel{?}{=} [u_j] \cdot [v_j]
+\]
+
+Si algún triple falla la verificación, se detiene el protocolo. Los triples verificados no se usan en los cálculos (se sacrifican), garantizando que los restantes sean seguros.
+
+---
+
+\subsubsection{Suposición de seguridad: umbral \( t < n/2 \)}
+
+Muchos protocolos funcionan bajo la suposición de que menos de la mitad de los participantes son corruptos. Si este límite se excede, la seguridad no puede garantizarse, porque los adversarios podrían reconstruir secretos o romper integridad.
+
+\textbf{Ejemplo:}
+
+Si usamos Shamir con \( n = 5 \), \( k = 3 \):
+\begin{itemize}
+    \item Si hasta 2 partes son corruptas (\( t = 2 < 3 \)), no pueden reconstruir el secreto.
+    \item Si 3 partes son corruptas, pueden reconstruir \( f(0) \) y romper la privacidad.
+\end{itemize}
+
+---
+
+\subsubsection{Mejores prácticas}
+
+\begin{itemize}
+    \item Usar protocolos bien auditados (como SPDZ, Sharemind, MPyC).
+    \item Ejecutar auditorías periódicas del setup (especialmente en zk-SNARKs que dependen de CRS).
+    \item Asumir siempre el modelo malicioso en aplicaciones críticas.
+\end{itemize}
+
+\section{Conclusiones}
+
+En este documento hemos explorado en detalle los fundamentos y aplicaciones de dos herramientas criptográficas fundamentales: la Computación Segura Multiparte (SMPC) y las Pruebas de Conocimiento Cero (ZKP). 
+
+A través de definiciones precisas, ejemplos matemáticos paso a paso y escenarios prácticos, mostramos cómo estas técnicas permiten:
+\begin{itemize}
+    \item Realizar cálculos distribuidos sin revelar datos privados.
+    \item Verificar afirmaciones complejas sin exponer los detalles subyacentes.
+    \item Proteger sistemas frente a adversarios semi-honestos y maliciosos.
+\end{itemize}
+
+Los protocolos SMPC permiten construir aplicaciones colaborativas seguras, desde análisis estadístico hasta aprendizaje federado, mientras que las ZKP permiten agregar garantías de integridad y validez, especialmente relevantes en contextos públicos como blockchain.
+
+Además, abordamos las limitaciones prácticas, los modelos de amenazas y los mecanismos de defensa, mostrando que la seguridad efectiva requiere no solo algoritmos sólidos, sino también una implementación cuidadosa y consciente del modelo adversarial.
+
+Finalmente, destacamos que existen frameworks maduros y disponibles (como SPDZ, Sharemind y MPyC) que permiten llevar estas técnicas al mundo real, abriendo la puerta a sistemas distribuidos seguros, verificables y eficientes.
+
+\textbf{Perspectiva futura:} 
+El desarrollo de nuevas variantes como zk-STARKs, homomorphic encryption y multiparty computation as a service (MPCaaS) promete expandir aún más las capacidades de privacidad y seguridad, haciendo de estos temas áreas activas y estratégicas para la investigación y la ingeniería aplicada.
+
+\section{Referencias}
+
+\begin{thebibliography}{99}
+
+\bibitem{evans2018}
+D. Evans, V. Kolesnikov, y M. Rosulek, 
+\textit{A Pragmatic Introduction to Secure Multi-Party Computation}, 
+Foundations and Trends in Privacy and Security, vol. 2, núm. 2–3, 2018, pp. 70–246.
+
+\bibitem{lindell2017}
+Y. Lindell, 
+\textit{How to Simulate It – A Tutorial on the Simulation Proof Technique}, 
+Tutorials on the Foundations of Cryptography, 2017.
+
+\bibitem{bogdanov2008}
+D. Bogdanov, S. Laur, y J. Willemson, 
+\textit{Sharemind: A Framework for Fast Privacy-Preserving Computations}, 
+European Symposium on Research in Computer Security (ESORICS), 2008.
+
+\bibitem{chainalysis2024}
+Chainalysis Team, 
+\textit{Introduction to Zero-Knowledge Proofs}, 
+Chainalysis Blog, 12 de junio de 2024. Disponible en: \url{https://www.chainalysis.com/blog/introduction-to-zero-knowledge-proofs-zkps/}
+
+\bibitem{certik2023}
+CertiK, 
+\textit{A Short Introduction to Zero Knowledge Proofs}, 
+CertiK Blog, 2023. Disponible en: \url{https://www.certik.com/resources/blog/a-short-introduction-to-zero-knowledge-proofs}
+
+\end{thebibliography}
+
+
+\end{document}
