@@ -1,4 +1,4 @@
-\documentclass[conference]{IEEEtran}
+\documentclass[journal,onecolumn]{IEEEtran}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel} % Añadido para mejorar el silabeo en español
 \usepackage{graphicx}
@@ -33,6 +33,9 @@
 
 \maketitle
 
+% --- INICIO DE ELEMENTOS PRELIMINARES ---
+
+% Para IEEEtran, el abstract y keywords van en un entorno específico
 \begin{abstract}
 Large Language Model-based agents have achieved remarkable abilities in contextual reasoning. However, they remain limited by poor long-term memory integration. Most agents rely on isolated memory modules (episodic, semantic, structured) with no unified coordination. This paper identifies this architectural gap and, inspired by the "Central Executive" component of human working memory models, proposes a conceptual framework for an executive control layer. This architectural piece would be responsible for query analysis, memory selection, and fact validation, aiming to address redundancy, inconsistencies, and hallucinations through a centralized and validated memory management process.
 \end{abstract}
@@ -41,12 +44,19 @@ Large Language Model-based agents have achieved remarkable abilities in contextu
 LLM agents, executive control, cognitive architecture, working memory, hallucination mitigation, factual validation, memory systems.
 \end{IEEEkeywords}
 
+% Se añade el Resumen como una sección sin numerar
 \section*{Resumen}
 Los agentes basados en Modelos de Lenguaje de Gran Escala han alcanzado habilidades notables en el razonamiento contextual. Sin embargo, siguen estando limitados por una pobre integración de la memoria a largo plazo. La mayoría de los agentes dependen de módulos de memoria aislados (episódica, semántica, estructurada) sin una coordinación unificada. Este artículo identifica esta brecha arquitectónica e, inspirado en el componente del "Ejecutivo Central" de los modelos de memoria de trabajo humana, propone un marco conceptual para una capa de control ejecutivo. Esta pieza arquitectónica sería responsable del análisis de consultas, la selección de memoria y la validación de hechos, con el objetivo de abordar la redundancia, las inconsistencias y las alucinaciones a través de un proceso de gestión de memoria centralizado y validado.
 
 \begin{IEEEkeywords}
 \textbf{Palabras Clave---}agentes LLM, control ejecutivo, arquitectura cognitiva, memoria de trabajo, mitigación de alucinaciones, validación factual, sistemas de memoria.
 \end{IEEEkeywords}
+
+% Se añade el Índice
+\tableofcontents
+\newpage % Se fuerza una nueva página después del índice para claridad
+
+% --- INICIO DEL CUERPO DEL PAPER ---
 
 \section{Introducción}
 
@@ -61,9 +71,6 @@ A diferencia de estos enfoques, la cognición humana ofrece un modelo más robus
 Este rol de "controlador cognitivo" es precisamente lo que parece faltar en las arquitecturas de agentes actuales. Estos operan con un conjunto de memorias desacopladas —episódicas, semánticas, estructuradas, vectoriales y paramétricas~\cite{zeng2024structural}— sin una capa que las gestione de forma sinérgica. Si bien existen arquitecturas avanzadas como AriGraph~\cite{anokhin2024arigraph} o MemGPT~\cite{packer2023memgpt}, que exploran la integración de memorias, ninguna formaliza un componente cuyo propósito explícito sea emular esta función de control ejecutivo para la selección y validación diferenciada de memorias.
 
 Para explorar una solución a este vacío arquitectónico, este trabajo presenta un \textbf{marco conceptual para una capa de control ejecutivo}. Se concibe como una pieza de decisión interna, especializada y explícita, que, inspirada en el Ejecutivo Central, analiza la naturaleza de las consultas, selecciona dinámicamente las fuentes de memoria más apropiadas, consolida la información recuperada y valida su coherencia antes de que el agente genere una respuesta. El objetivo es ofrecer una perspectiva arquitectónica que pueda sentar las bases para una discusión sobre el diseño de agentes fundamentalmente más fiables, robustos y trazables.
-
-El resto de este artículo está organizado de la siguiente manera. La Sección II presenta una taxonomía de los diferentes tipos de memoria utilizados en los agentes. La Sección III profundiza en el problema de la integración y los errores derivados de los enfoques actuales. La Sección IV detalla nuestra propuesta para una capa de control ejecutivo. Finalmente, la Sección V discute los desafíos, objetivos y futuras líneas de investigación.
-
 
 \section{Taxonomía y Estado del Arte de la Memoria en Agentes}
 \label{sec:memory_types}
@@ -113,7 +120,7 @@ El paradigma ReAct (Reason and Act)~\cite{yao2022react} fue un gran avance, perm
 \subsubsection{Arquitecturas de Memoria Especializadas}
 Existen proyectos que abordan problemas de memoria específicos, pero no el de la coordinación general.
 \begin{itemize}
-    \item \textbf{MemGPT}~\cite{packer2023memgpt}: Se enfoca en el problema de la ventana de contexto finita. Actúa como un "sistema operativo de memoria virtual" que mueve páginas de información entre el contexto del LLM (memoria rápida) y un almacén externo (memoria lenta). Sin embargo, su función no es la de seleccionar entre diferentes *tipos* de memoria (vectorial vs. estructurada) o validar sus contenidos, sino gestionar eficientemente un único flujo de información.
+    \item \textbf{MemGPT}~\cite{packer2023memgpt}: Se enfoca brillantemente en el problema de la ventana de contexto finita. Actúa como un "sistema operativo de memoria virtual" que mueve páginas de información entre el contexto del LLM (memoria rápida) y un almacén externo (memoria lenta). Sin embargo, su función no es la de seleccionar entre diferentes *tipos* de memoria (vectorial vs. estructurada) o validar sus contenidos, sino gestionar eficientemente un único flujo de información.
     \item \textbf{AriGraph}~\cite{anokhin2024arigraph}: Es una propuesta para mejorar un *tipo* de memoria específico. Busca construir dinámicamente un grafo de conocimiento (memoria semántica) a partir de las interacciones del agente. Es un avance en cómo crear una memoria más rica, pero no aborda cómo un agente debe decidir si consultar ese grafo, una base de datos vectorial o su historial episódico.
 \end{itemize}
 
@@ -351,7 +358,7 @@ Como trabajo futuro, proponemos una agenda de investigación clara para validar 
     \item \textbf{Evolución hacia un Agente con Aprendizaje Activo:} Una extensión natural de este marco es considerar la salida del Validador de Hechos no solo como un contexto para una respuesta inmediata, sino como una entrada para un proceso de \textbf{consolidación de memoria a largo plazo}. Los hechos validados con alta confianza podrían ser utilizados para crear y actualizar dinámicamente un mapa ontológico o grafo de conocimiento. Esto transformaría la arquitectura de un simple gestor a un sistema con capacidad de aprendizaje activo, donde el agente refina y expande su base de conocimiento estructurado a través de sus propias operaciones.
 \end{enumerate}
 
-\subsection{Conclusión}
+\section{Conclusión}
 Este ensayo ha identificado la falta de coordinación de memoria como una debilidad clave en los agentes LLM y ha propuesto un \textbf{marco conceptual para una capa de control ejecutivo}, inspirado en el Ejecutivo Central cognitivo. Al formalizar las tareas de selección, consolidación y validación, este enfoque ofrece un camino prometedor hacia agentes más fiables, robustos y trazables. Los desafíos son significativos, pero la agenda de investigación propuesta para su validación empírica y extensión futura ofrece un camino claro para avanzar en la construcción de sistemas de IA verdaderamente inteligentes.
 
 
