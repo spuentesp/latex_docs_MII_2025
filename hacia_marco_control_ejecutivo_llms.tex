@@ -1,4 +1,4 @@
-\documentclass[journal,onecolumn]{IEEEtran}
+\documentclass[conference]{IEEEtran}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel} % Añadido para mejorar el silabeo en español
 \usepackage{graphicx}
@@ -31,11 +31,19 @@
 
 \begin{document}
 
+% --- INICIO DEL ÍNDICE ---
+\newpage
+\pagenumbering{roman} % Numeración romana para el índice
+\tableofcontents
+\newpage
+\pagenumbering{arabic} % Volver a numeración arábiga para el contenido
+\setcounter{page}{1} % Reiniciar el contador de página
+% --- FIN DEL ÍNDICE ---
+
+
+% --- INICIO DEL CONTENIDO DEL PAPER ---
 \maketitle
 
-% --- INICIO DE ELEMENTOS PRELIMINARES ---
-
-% Para IEEEtran, el abstract y keywords van en un entorno específico
 \begin{abstract}
 Large Language Model-based agents have achieved remarkable abilities in contextual reasoning. However, they remain limited by poor long-term memory integration. Most agents rely on isolated memory modules (episodic, semantic, structured) with no unified coordination. This paper identifies this architectural gap and, inspired by the "Central Executive" component of human working memory models, proposes a conceptual framework for an executive control layer. This architectural piece would be responsible for query analysis, memory selection, and fact validation, aiming to address redundancy, inconsistencies, and hallucinations through a centralized and validated memory management process.
 \end{abstract}
@@ -43,20 +51,13 @@ Large Language Model-based agents have achieved remarkable abilities in contextu
 \begin{IEEEkeywords}
 LLM agents, executive control, cognitive architecture, working memory, hallucination mitigation, factual validation, memory systems.
 \end{IEEEkeywords}
+\begin{abstract}
 
-% Se añade el Resumen como una sección sin numerar
-\section*{Resumen}
 Los agentes basados en Modelos de Lenguaje de Gran Escala han alcanzado habilidades notables en el razonamiento contextual. Sin embargo, siguen estando limitados por una pobre integración de la memoria a largo plazo. La mayoría de los agentes dependen de módulos de memoria aislados (episódica, semántica, estructurada) sin una coordinación unificada. Este artículo identifica esta brecha arquitectónica e, inspirado en el componente del "Ejecutivo Central" de los modelos de memoria de trabajo humana, propone un marco conceptual para una capa de control ejecutivo. Esta pieza arquitectónica sería responsable del análisis de consultas, la selección de memoria y la validación de hechos, con el objetivo de abordar la redundancia, las inconsistencias y las alucinaciones a través de un proceso de gestión de memoria centralizado y validado.
-
+\end{abstract}
 \begin{IEEEkeywords}
 \textbf{Palabras Clave---}agentes LLM, control ejecutivo, arquitectura cognitiva, memoria de trabajo, mitigación de alucinaciones, validación factual, sistemas de memoria.
 \end{IEEEkeywords}
-
-% Se añade el Índice
-\tableofcontents
-\newpage % Se fuerza una nueva página después del índice para claridad
-
-% --- INICIO DEL CUERPO DEL PAPER ---
 
 \section{Introducción}
 
@@ -393,6 +394,10 @@ S. Yao, D. Yu, J. Zhao, I. Shafran, T. L. Griffiths, Y. Cao, and K. Narasimhan, 
 
 \bibitem{zhao2024cogvlm} 
 W. Zhao, K. Chen, Z. Wang, J. Ye, D. Du, and W. Che, "CogVLM: Visual Expert for Pretrained Large Models," \textit{arXiv preprint arXiv:2404.13524}, 2024.
+
+\end{thebibliography}
+
+\end{document}
 
 \end{thebibliography}
 
