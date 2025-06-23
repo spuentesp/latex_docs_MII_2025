@@ -31,6 +31,56 @@
 
 \begin{document}
 
+% --- INICIO DE LA PORTADA PERSONALIZADA ---
+\begin{titlepage}
+
+
+% Logo Superior (Reemplazar 'logo_superior.png' con el archivo real)
+
+% --- Bloque Superior (Vicerrectoría) ---
+\noindent % Evita la sangría del párrafo
+\begin{minipage}[c]{0.2\textwidth} % Minipágina para el logo
+    \centering
+    % Descomenta y usa tu logo real.
+    \includegraphics[width=2cm]{logo_ufro.png} 
+\end{minipage}% <-- El % es crucial para evitar espacios indeseados
+\hspace{0.1cm} % Espacio reducido entre logo y texto
+\begin{minipage}[c]{0.7\textwidth} % Minipágina para el texto
+    \large
+    \textbf{UNIVERSIDAD DE LA FRONTERA}\\[0.1cm] % Separación reducida
+    \textsc{VICERRECTORÍA DE INVESTIGACIÓN Y POSTGRADO}
+\end{minipage}
+
+\centering
+% Logo Central (Reemplazar 'logo_central.png' con el archivo real)
+\includegraphics[width=5cm]{logo_ufro.png}\\[2cm]
+
+\textsc{\huge UNIVERSIDAD DE LA FRONTERA}\\[0.5cm]
+\textsc{\Large FACULTAD DE INGENIERÍA Y CIENCIAS}\\[1cm]
+
+\rule{\textwidth}{0.4pt}\vspace*{0.5cm}
+{\small ENSAYO ASIGNATURA: SEMINARIO DE TECNOLOGÍA}\\[0.5cm]
+{\small MAGÍSTER EN INGENIERÍA INFORMÁTICA Y ESPECIALIZACIÓN EN INGENIERÍA DE SOFTWARE}\\[0.5cm]
+{\huge \textit{"Hacia un Marco de Control Ejecutivo para la Memoria en Agentes Basados en LLMs"}}\\[2cm]
+\rule{\textwidth}{0.4pt}\vspace*{1cm}
+
+\vfill % Empuja el contenido hacia abajo
+
+\begin{flushleft}
+\large
+\textbf{NOMBRE DEL ALUMNO:} SEBASTIAN EDUARDO FRANCISCO PUENTES PRIETO\\
+\textbf{N° DE MATRÍCULA:} 16575262725\\ % Reemplazar con la matrícula real
+\textbf{PROGRAMA:} MII % Reemplazar si es necesario
+\end{flushleft}
+
+\vspace{2cm}
+
+{\large MAGÍSTER EN INGENIERÍA INFORMÁTICA Y ESPECIALIZACIÓN EN INGENIERÍA DE SOFTWARE}
+
+\end{titlepage}
+% --- FIN DE LA PORTADA ---
+
+
 % --- INICIO DEL ÍNDICE ---
 \newpage
 \pagenumbering{roman} % Numeración romana para el índice
@@ -398,7 +448,6 @@ W. Zhao, K. Chen, Z. Wang, J. Ye, D. Du, and W. Che, "CogVLM: Visual Expert for 
 \end{thebibliography}
 
 \end{document}
-
 \end{thebibliography}
 
 \end{document}
